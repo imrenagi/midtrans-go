@@ -19,6 +19,9 @@ const (
 	//Production : represent production environment
 	Production
 
+	//Staging : represent staging environment
+	Staging
+
 	//libraryVersion : midtrans go library version
 	libraryVersion = "v1.3.8"
 )
@@ -85,6 +88,7 @@ func GetHttpClient(Env EnvironmentType) *HttpClientImplementation {
 }
 
 var typeString = map[EnvironmentType]string{
+	Staging:    "https://api.stg.midtrans.com",
 	Sandbox:    "https://api.sandbox.midtrans.com",
 	Production: "https://api.midtrans.com",
 }
@@ -112,6 +116,7 @@ func (e EnvironmentType) IrisURL() string {
 // ConfigOptions : is used to configure some feature before request to Midtrans API
 // via `coreapi.Gateway` `snap.Gateway` and `iris.Gateway`
 type ConfigOptions struct {
+	PopId                       *string
 	PaymentIdempotencyKey       *string
 	PaymentOverrideNotification *string
 	PaymentAppendNotification   *string

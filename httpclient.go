@@ -42,6 +42,10 @@ func (c *HttpClientImplementation) Call(method string, url string, apiKey *strin
 			req.WithContext(options.Ctx)
 		}
 
+		if options.PopId != nil {
+			req.Header.Add("X-Pop-Id", *options.PopId)
+		}
+
 		if options.IrisIdempotencyKey != nil {
 			req.Header.Add("X-Idempotency-Key", *options.IrisIdempotencyKey)
 		}
@@ -74,7 +78,7 @@ func (c *HttpClientImplementation) Call(method string, url string, apiKey *strin
 			return err
 		} else if strings.Contains(key, " ") {
 			err := &Error{
-				Message:  "The API Key (ServerKey/IrisApiKey) contains white-space. Please double-check your API key. " +
+				Message: "The API Key (ServerKey/IrisApiKey) contains white-space. Please double-check your API key. " +
 					"You can check the ServerKey from the Midtrans Dashboard. " +
 					"See https://docs.midtrans.com/en/midtrans-account/overview?id=retrieving-api-access-keys " +
 					"for the details or please contact us via https://midtrans.com/contact-us. ",
@@ -127,7 +131,7 @@ func (c *HttpClientImplementation) DoRequest(req *http.Request, result interface
 			return &Error{
 				Message:    "Cannot read response body: " + err.Error(),
 				StatusCode: res.StatusCode,
-				RawError: err,
+				RawError:   err,
 			}
 		}
 
@@ -156,7 +160,7 @@ func (c *HttpClientImplementation) DoRequest(req *http.Request, result interface
 				return &Error{
 					Message:        errMessage,
 					StatusCode:     statusCode,
-					RawError: 		errors.New(errMessage),
+					RawError:       errors.New(errMessage),
 					RawApiResponse: rawResponse,
 				}
 			}
@@ -221,7 +225,7 @@ func logHttpHeaders(log LoggerInterface, header http.Header, isReq bool) {
 	}
 }
 
-//HasOwnProperty : Convert HTTP raw response body to map and check if the body has own field
+// HasOwnProperty : Convert HTTP raw response body to map and check if the body has own field
 func HasOwnProperty(key string, body []byte) (bool, map[string]interface{}) {
 	d := make(map[string]interface{})
 	_ = json.Unmarshal(body, &d)
