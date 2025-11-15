@@ -19,12 +19,33 @@ type Client struct {
 	Options    *midtrans.ConfigOptions
 }
 
+type Options struct {
+	HttpClient *http.Client
+}
+
+type Option func(*Options)
+
+func WithHttpClient(client *http.Client) Option {
+	return func(o *Options) {
+		o.HttpClient = client
+	}
+}
+
 // New : this function will always be called when the CoreApi is initiated
-func (c *Client) New(serverKey string, env midtrans.EnvironmentType) {
+func (c *Client) New(serverKey string, env midtrans.EnvironmentType, opts ...Option) {
+	options := &Options{}
+	for _, o := range opts {
+		o(options)
+	}
+	var midOptions []midtrans.Option
+	if options.HttpClient != nil {
+		midOptions = append(midOptions, midtrans.WithHttpClient(options.HttpClient))
+	}
+
 	c.Env = env
 	c.ServerKey = serverKey
 	c.Options = &midtrans.ConfigOptions{}
-	c.HttpClient = midtrans.GetHttpClient(env)
+	c.HttpClient = midtrans.GetHttpClient(env, midOptions...)
 }
 
 // getDefaultClient : internal function to get default Client

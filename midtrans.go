@@ -79,10 +79,29 @@ func GetDefaultLogger(env EnvironmentType) LoggerInterface {
 	}
 }
 
+type Option func(*Options)
+
+type Options struct {
+	HttpClient *http.Client
+}
+
+func WithHttpClient(client *http.Client) Option {
+	return func(o *Options) {
+		o.HttpClient = client
+	}
+}
+
 // GetHttpClient : get HttpClient implementation
-func GetHttpClient(Env EnvironmentType) *HttpClientImplementation {
-	return &HttpClientImplementation{
+func GetHttpClient(Env EnvironmentType, opts ...Option) *HttpClientImplementation {
+	options := &Options{
 		HttpClient: DefaultGoHttpClient,
+	}
+	for _, o := range opts {
+		o(options)
+	}
+
+	return &HttpClientImplementation{
+		HttpClient: options.HttpClient,
 		Logger:     GetDefaultLogger(Env),
 	}
 }
